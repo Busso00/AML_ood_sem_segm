@@ -1,4 +1,4 @@
-### Prepare directory of Training [Cityscapes](https://www.cityscapes-dataset.com) and Validation [All validation dataset](https://drive.google.com/drive/folders/1asRIA8azwl3ZHznza3VKki308VeRZvr3?usp=drive_link) in a ./datasets dir with following structure
+## Prepare directory of Training [Cityscapes](https://www.cityscapes-dataset.com) and Validation [All validation dataset](https://drive.google.com/drive/folders/1asRIA8azwl3ZHznza3VKki308VeRZvr3?usp=drive_link) in a ./datasets dir with following structure
 
 ```plaintext
 datasets
