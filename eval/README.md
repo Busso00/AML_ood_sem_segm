@@ -16,6 +16,7 @@ This code can be used to calculate the IoU (mean and per-class) in a subset of i
 ## eval_forwardTime.py
 This function loads a model specified by '-m' and enters a loop to continuously estimate forward pass time (fwt) in the specified resolution. 
 
-## Usage example in "../Colab Notebook/StartScript_AML.ipynb"
+## Example
+Usage example in "../Colab Notebook/StartScript_AML.ipynb"
 
 
