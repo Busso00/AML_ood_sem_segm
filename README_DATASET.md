@@ -1,5 +1,5 @@
-prepare directory of Training (Cityscapes) and Validation (All validation dataset)
-in a ./datasets dir with following structure
+### Prepare directory of Training (Cityscapes) and Validation (All validation dataset)
+### in a ./datasets dir with following structure
 
 ```plaintext
 datasets
