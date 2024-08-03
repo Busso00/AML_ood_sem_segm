@@ -1,6 +1,7 @@
 prepare directory of Training (Cityscapes) and Validation (All validation dataset)
 in a ./dataset dir with following structure
 
+```plaintext
 dataset
 ├── Train_Dataset
 │   ├── gtFine
@@ -27,4 +28,5 @@ dataset
     └── RoadObsticle21
         ├── images
         └── labels_masks
+```
 
