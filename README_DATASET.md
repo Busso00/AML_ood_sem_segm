@@ -1,8 +1,8 @@
 prepare directory of Training (Cityscapes) and Validation (All validation dataset)
-in a ./dataset dir with following structure
+in a ./datasets dir with following structure
 
 ```plaintext
-dataset
+datasets
 ├── Train_Dataset
 │   ├── gtFine
 │   │   ├── test
