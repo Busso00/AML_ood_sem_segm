@@ -30,6 +30,8 @@ datasets
 ```
 
 ## RoadAnomaly:
+
+```plaintext
 @misc{lis2019detectingunexpectedimageresynthesis,
       title={Detecting the Unexpected via Image Resynthesis}, 
       author={Krzysztof Lis and Krishna Nakka and Pascal Fua and Mathieu Salzmann},
@@ -39,8 +41,11 @@ datasets
       primaryClass={cs.CV},
       url={https://arxiv.org/abs/1904.07595}, 
 }
+```
 
 ## fs_static & FS_LostFound_full
+
+```plaintext
 @article{DBLP:journals/corr/abs-1904-03215,
   author       = {Hermann Blum and
                   Paul{-}Edouard Sarlin and
@@ -58,8 +63,11 @@ datasets
   biburl       = {https://dblp.org/rec/journals/corr/abs-1904-03215.bib},
   bibsource    = {dblp computer science bibliography, https://dblp.org}
 }
+```
 
 ## RoadAnomaly21 & RoadObstacle21
+
+```plaintext
 @misc{segmentmeifyoucan2021,
 	  title={SegmentMeIfYouCan: A Benchmark for Anomaly Segmentation}, 
 	  author={Robin Chan and Krzysztof Lis and Svenja Uhlemeyer and Hermann Blum and Sina Honari and Roland Siegwart and Pascal Fua and Mathieu Salzmann and Matthias Rottmann},
@@ -68,3 +76,4 @@ datasets
 	  archivePrefix={arXiv},
 	  primaryClass={cs.CV}
 }
+```
