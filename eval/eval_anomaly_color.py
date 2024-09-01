@@ -16,9 +16,15 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import Compose, CenterCrop, Normalize, Resize
 from torchvision.transforms import ToTensor, ToPILImage
 
+import torch.nn.functional as F
 
+cwd = os.getcwd()
+
+os.chdir('/content/drive/MyDrive/ProjectAML/models')
+from bisenetv1 import BiSeNetV1
 from erfnet import ERFNet
 from transform import Relabel, ToLabel, Colorize
+os.chdir(cwd)
 
 
 #print example from datasets to check if are correct (do color remapping)
@@ -91,7 +97,11 @@ def main(args):
 
     #Import ERFNet model from the folder
     #Net = importlib.import_module(modelpath.replace("/", "."), "ERFNet")
-    model = ERFNet(NUM_CLASSES)
+    if not args.void:
+      model = ERFNet(NUM_CLASSES)
+    else:
+      model = BiSeNetV1(NUM_CLASSES)
+
   
     if (not args.cpu):
         model = torch.nn.DataParallel(model).cuda()
@@ -129,6 +139,25 @@ def main(args):
     for i,(dataset,format) in enumerate(zip(['RoadAnomaly21', 'RoadObsticle21', 'FS_LostFound_full', 'fs_static', 'RoadAnomaly'], ['png', 'webp', 'png', 'jpg', 'jpg'])):
         
         image_path = os.path.join(args.datadir, f'{dataset}/images/0.{format}')
+        
+        if args.no_resize and args.void:
+          
+          closest_size = (1024, 2048)
+
+          if "RoadAnomaly21" in dataset:
+            closest_size = (736, 1280)
+
+          if "RoadObsticle21" in dataset:
+            closest_size = (1088, 1920)
+                        
+          if "RoadAnomaly" in dataset:
+            closest_size = (736, 1280)
+
+          input_transform = Compose([
+            Resize(closest_size, Image.BILINEAR),
+            ToTensor()
+          ])
+          
         image=input_transform(load_image(image_path)).unsqueeze(0)
 
         if (not args.cpu):
@@ -137,17 +166,19 @@ def main(args):
         with torch.no_grad():
           outputs = model(image)
 
-        label = outputs[0].max(0)[1].byte().cpu().data
-            
-        label_color = Colorize()(label.unsqueeze(0))
-        maxLogit = -outputs[0][:-1].max(0)[0]
-        #label_cityscapes = cityscapes_trainIds2labelIds(label.unsqueeze(0))
+        if args.void:
+          logits = outputs[0][0]
+          probs = np.array(F.softmax(torch.tensor(logits), dim=0))
+          score = probs[-1]
         
-           
+        else:
+          maxLogit = -outputs[0][:-1].max(0)[0]
+          score = maxLogit
+            
             
         ax[i][0].imshow(image[0,...].permute(1,2,0))
         ax[i][0].set_title(f"image {dataset}")
-        ax[i][1].imshow(maxLogit,cmap='coolwarm')
+        ax[i][1].imshow(score,cmap='coolwarm')
         ax[i][1].set_title(f"maxLogit {dataset}")
             
 
@@ -170,5 +201,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=1)
     parser.add_argument('--cpu', action='store_true')
     parser.add_argument('--no-resize', action='store_true')
+    parser.add_argument('--void', action='store_true')
 
     main(parser.parse_args())

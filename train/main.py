@@ -166,9 +166,9 @@ def train(args, model, enc=False):
     #choose input transform
 
     if args.model == "bisenetv1":
-      add_transform = TransformationTrain(scales=[1.0, 1.25, 1.5, 1.75, 2.0], cropsize=[args.height, args.height])
+        add_transform = TransformationTrain(scales=[1.0, 1.25, 1.5, 1.75, 2.0], cropsize=[args.height, args.height])
     else:
-      add_transform = None
+        add_transform = None
     
     co_transform = MyCoTransform(enc, augment=True, height=args.height, add_transform=add_transform)
     co_transform_val = MyCoTransform(enc, augment=False, height=args.height)
@@ -177,13 +177,13 @@ def train(args, model, enc=False):
     dataset_val = cityscapes(args.datadir, co_transform_val, 'val')
 
     if args.model == "bisenetv1":
-      sampler = RepeatedDistSampler(dataset_train, 1000*args.num_epochs*args.batch_size, shuffle=True)
-      loader = DataLoader(dataset_train, num_workers=args.num_workers, batch_size=args.batch_size, sampler=sampler)
-      iter_loader=iter(loader)
-      loader_val = DataLoader(dataset_val, num_workers=args.num_workers, batch_size=1, shuffle=False)
+        sampler = RepeatedDistSampler(dataset_train, 2000*args.num_epochs*args.batch_size, shuffle=True) #sampler 2x to do gradient accumulation
+        loader = DataLoader(dataset_train, num_workers=args.num_workers, batch_size=args.batch_size, sampler=sampler)
+        iter_loader=iter(loader)
+        loader_val = DataLoader(dataset_val, num_workers=args.num_workers, batch_size=1, shuffle=False)
     else:
-      loader = DataLoader(dataset_train, num_workers=args.num_workers, batch_size=args.batch_size, shuffle=True)
-      loader_val = DataLoader(dataset_val, num_workers=args.num_workers, batch_size=1, shuffle=False)
+        loader = DataLoader(dataset_train, num_workers=args.num_workers, batch_size=args.batch_size, shuffle=True)
+        loader_val = DataLoader(dataset_val, num_workers=args.num_workers, batch_size=1, shuffle=False)
     
 
     if args.cuda:
@@ -208,30 +208,27 @@ def train(args, model, enc=False):
     #choose loss, optimizer, scheduler
 
     if args.model == "erfnet":
-      criterion = CrossEntropyLoss2d(weight)
-      optimizer = Adam(model.parameters(), 5e-4, (0.9, 0.999),  eps=1e-08, weight_decay=1e-4)
-      lambda1 = lambda epoch: pow((1-((epoch-1)/args.num_epochs)),0.9)  
-      scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda1) 
+        criterion = CrossEntropyLoss2d(weight)
+        optimizer = Adam(model.parameters(), 5e-4, (0.9, 0.999),  eps=1e-08, weight_decay=1e-4)
+        lambda1 = lambda epoch: pow((1-((epoch-1)/args.num_epochs)),0.9) #work after resume
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda1) 
 
     elif args.model == "enet":
-      criterion = CrossEntropyLoss2d(weight)
-      optimizer = Adam(model.parameters(), 5e-4, (0.9, 0.999),  eps=1e-08, weight_decay=1e-4)
-      lambda1 = lambda epoch: pow((1-((epoch-1)/args.num_epochs)),0.9)  ## scheduler 2
-      scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda1)                             ## scheduler 2
+        criterion = CrossEntropyLoss2d(weight)
+        optimizer = Adam(model.parameters(), 5e-4, (0.9, 0.999),  eps=1e-08, weight_decay=1e-4)
+        lambda1 = lambda epoch: pow((1-((epoch-1)/args.num_epochs)),0.9)  ## scheduler 2
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda1) #work after resume                         ## scheduler 2
 
     elif args.model == "bisenetv1":
-      criteria_p = OhemCELoss(thresh=0.7)
-      criteria_16 = OhemCELoss(thresh=0.7)
-      criteria_32 = OhemCELoss(thresh=0.7)
-      optimizer = set_optimizer(model)
-      #NOTE: use a iter scheduler
-      scheduler = WarmupPolyLrScheduler(optimizer, power=2,
-        max_iter=80000, warmup_iter=1000,
-        warmup_ratio=1, warmup='exp', last_epoch=-1,)
-      #tot_iter = args.num_epochs*1000
-      #lambda1 = lambda step: pow((1-(step/tot_iter)),0.9)  
-      #scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda1) 
-      
+        criteria_p = OhemCELoss(thresh=0.7)
+        criteria_16 = OhemCELoss(thresh=0.7)
+        criteria_32 = OhemCELoss(thresh=0.7)
+        optimizer = set_optimizer(model)
+        #NOTE: use a iter scheduler
+        scheduler = WarmupPolyLrScheduler(optimizer, power=0.9,
+            max_iter=80000, warmup_iter=1000,
+            warmup_ratio=0.1, warmup='exp', last_epoch=-1,)
+        
     else:
       assert False, "model not defined"
 
@@ -248,13 +245,16 @@ def train(args, model, enc=False):
         start_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
+        scheduler.load_state_dict(checkpoint['scheduler'])
         best_acc = checkpoint['best_acc']
+
         print("=> Loaded checkpoint at epoch {})".format(checkpoint['epoch']))
 
     
     writer = SummaryWriter(f"./runs/{args.model}")
 
-    step_bisenet=0
+    
+
 
     for epoch in range(start_epoch, args.num_epochs+1):
         print("----- TRAINING - EPOCH", epoch, "-----")
@@ -272,102 +272,107 @@ def train(args, model, enc=False):
         model.train() 
         if args.model != "bisenetv1":
           
-          usedLr = 0
-          for param_group in optimizer.param_groups:
-              print("LEARNING RATE: ", param_group['lr'])
-              usedLr = float(param_group['lr'])
-          
-          for step, (images, labels) in enumerate(loader):
-
-              start_time = time.time()
-              
-              if args.cuda:
-                  images = images.cuda()
-                  labels = labels.cuda()
-
-              inputs = Variable(images)
-              targets = Variable(labels)
-
-              #forward pass
-              if args.model == "erfnet":
-                outputs = model(inputs, only_encode=enc)
-              elif args.model == "enet":
-                outputs = model(inputs)
-              else:
-                assert False, "model not found"  
+            usedLr = 0
+            for param_group in optimizer.param_groups:
+                print("LEARNING RATE: ", param_group['lr'])
+                usedLr = float(param_group['lr'])
             
-              optimizer.zero_grad()
-              #loss calculation
-              loss = criterion(outputs, targets[:, 0])#erfnet and enet doesn't have intermediate losses
-              
-              loss.backward()
-              optimizer.step()
+            for step, (images, labels) in enumerate(loader):
+
+                start_time = time.time()
                 
-              epoch_loss.append(loss.data.item()) #modified: loss.data[0] -> loss.data.item()
-              time_train.append(time.time() - start_time)
+                if args.cuda:
+                    images = images.cuda()
+                    labels = labels.cuda()
 
-              if (doIouTrain):
-                  iouEvalTrain.addBatch(outputs.max(1)[1].unsqueeze(1).data, targets.data)
-                  
-              if args.visualize and args.steps_plot > 0 and step % args.steps_plot == 0:
-                  start_time_plot = time.time()
-                  image = inputs[0].cpu().data
-                  
-              if args.steps_loss > 0 and step % args.steps_loss == 0:
-                  average = sum(epoch_loss) / len(epoch_loss)
-                  print(f'loss: {average:0.4} (epoch: {epoch}, step: {step})', 
-                          "// Avg time/img: %.4f s" % (sum(time_train) / len(time_train) / args.batch_size))
+                inputs = Variable(images)
+                targets = Variable(labels)
 
-          scheduler.step(epoch) 
-    
+                #forward pass
+                if args.model == "erfnet":
+                  outputs = model(inputs, only_encode=enc)
+                elif args.model == "enet":
+                  outputs = model(inputs)
+                else:
+                  assert False, "model not found"  
+              
+                optimizer.zero_grad()
+                #loss calculation
+                loss = criterion(outputs, targets[:, 0])#erfnet and enet doesn't have intermediate losses
+                
+                loss.backward()
+                optimizer.step()
+                  
+                epoch_loss.append(loss.data.item()) #modified: loss.data[0] -> loss.data.item()
+                time_train.append(time.time() - start_time)
+
+                if (doIouTrain):
+                    iouEvalTrain.addBatch(outputs.max(1)[1].unsqueeze(1).data, targets.data)
+                    
+                if args.visualize and args.steps_plot > 0 and step % args.steps_plot == 0:
+                    start_time_plot = time.time()
+                    image = inputs[0].cpu().data
+                    
+                if args.steps_loss > 0 and step % args.steps_loss == 0:
+                    average = sum(epoch_loss) / len(epoch_loss)
+                    print(f'loss: {average:0.4} (epoch: {epoch}, step: {step})', 
+                            "// Avg time/img: %.4f s" % (sum(time_train) / len(time_train) / args.batch_size))
+
+            scheduler.step(epoch) 
+      
         else: 
-          usedLr=0
-          lr = scheduler.get_lr()
-          usedLr = sum(lr) / len(lr)
-          print("LEARNING RATE: ", usedLr)
+            usedLr=0
+            lr = scheduler.get_lr()
+            usedLr = sum(lr) / len(lr)
 
-          for step in range(1000):
-             
-              images, labels = next(iter_loader)
-
-              start_time = time.time()
-              
-              if args.cuda:
-                  images = images.cuda()
-                  labels = labels.cuda()
-
-              inputs = Variable(images)
-              targets = Variable(labels)
-
-              #forward pass
-              if args.model == "bisenetv1":
-                out, *h16_32 = model(inputs)
-              else:
-                assert False, "model not found"  
+            count = 0
             
-              optimizer.zero_grad()
-              #loss calculation
-              loss = criteria_p(out, targets[:, 0]) + criteria_16(h16_32[0], targets[:, 0]) + criteria_32(h16_32[1], targets[:, 0])
+            print("LEARNING RATE: ", usedLr)
+
+            for step in range(2000):
               
-              loss.backward()
-              optimizer.step() #lr managed only by scheduler for bisenet
-              scheduler.step() 
-              #scheduler.step(epoch*1000+step)
+                images, labels = next(iter_loader)
 
-              epoch_loss.append(loss.data.item()) #modified: loss.data[0] -> loss.data.item()
-              time_train.append(time.time() - start_time)
+                start_time = time.time()
+                
+                if args.cuda:
+                    images = images.cuda()
+                    labels = labels.cuda()
 
-              if (doIouTrain):
-                  iouEvalTrain.addBatch(outputs.max(1)[1].unsqueeze(1).data, targets.data)
-                  
-              if args.visualize and args.steps_plot > 0 and step % args.steps_plot == 0:
-                  start_time_plot = time.time()
-                  image = inputs[0].cpu().data
-                  
-              if args.steps_loss > 0 and step % args.steps_loss == 0:
-                  average = sum(epoch_loss) / len(epoch_loss)
-                  print(f'loss: {average:0.4} (epoch: {epoch}, step: {step})', 
-                          "// Avg time/img: %.4f s" % (sum(time_train) / len(time_train) / args.batch_size))
+                inputs = Variable(images)
+                targets = Variable(labels)
+
+                #forward pass
+                if args.model == "bisenetv1":
+                    out, *h16_32 = model(inputs)
+                else:
+                    assert False, "model not found"  
+              
+                optimizer.zero_grad()
+                #loss calculation
+                loss = criteria_p(out, targets[:, 0]) + criteria_16(h16_32[0], targets[:, 0]) + criteria_32(h16_32[1], targets[:, 0])
+                
+                loss.backward()
+                if (count+1) % 2 == 0: #gradient accumulation
+                    optimizer.step()
+                    scheduler.step()
+
+                count += 1
+                    
+                epoch_loss.append(loss.data.item()) #modified: loss.data[0] -> loss.data.item()
+                time_train.append(time.time() - start_time)
+
+                if (doIouTrain):
+                    iouEvalTrain.addBatch(outputs.max(1)[1].unsqueeze(1).data, targets.data)
+                    
+                if args.visualize and args.steps_plot > 0 and step % args.steps_plot == 0:
+                    start_time_plot = time.time()
+                    image = inputs[0].cpu().data
+                    
+                if args.steps_loss > 0 and step % args.steps_loss == 0:
+                    average = sum(epoch_loss) / len(epoch_loss)
+                    print(f'loss: {average:0.4} (epoch: {epoch}, step: {step})', 
+                            "// Avg time/img: %.4f s" % (sum(time_train) / len(time_train) / args.batch_size))
 
 
 
@@ -403,17 +408,17 @@ def train(args, model, enc=False):
               
               #forward pass
               if args.model == "erfnet":
-                outputs = model(inputs, only_encode=enc)
+                  outputs = model(inputs, only_encode=enc)
               elif args.model == "enet":
-                outputs = model(inputs)
+                  outputs = model(inputs)
               elif args.model == "bisenetv1":
-                outputs = model(inputs)[0] #no need for discard if you are validating
+                  outputs = model(inputs)[0] #no need for discard if you are validating
 
               #calculate losses (only to plot)
               if args.model == "bisenetv1":
-                loss = criteria_p(outputs, targets[:, 0])
+                  loss = criteria_p(outputs, targets[:, 0])
               else:
-                loss = criterion(outputs, targets[:, 0])
+                  loss = criterion(outputs, targets[:, 0])
 
             epoch_loss_val.append(loss.data.item()) #modified: loss.data[0] -> loss.data.item()
             time_val.append(time.time() - start_time)
@@ -461,7 +466,8 @@ def train(args, model, enc=False):
             'arch': str(model),
             'state_dict': model.state_dict(),
             'best_acc': best_acc,
-            'optimizer' : optimizer.state_dict() if args.model != "bisenetv1" else None,
+            'optimizer' : optimizer.state_dict(),
+            'scheduler' : scheduler.state_dict(), 
         }, is_best, filenameCheckpoint, filenameBest)
 
         #log loss and mIoU
@@ -469,6 +475,7 @@ def train(args, model, enc=False):
                             'train':average_epoch_loss_train,
                             'val':average_epoch_loss_val
                           }, epoch)
+
         writer.add_scalar("mIoU", iouVal, epoch)
 
         #SAVE MODEL AFTER EPOCH

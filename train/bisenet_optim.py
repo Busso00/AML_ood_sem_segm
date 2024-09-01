@@ -1,6 +1,6 @@
 import torch
 
-def set_optimizer(model, lr_start=2.5e-3, weight_decay=5e-4, pretrained=False):
+def set_optimizer(model, lr_start=1e-2, weight_decay=5e-4, pretrained=False):
     if hasattr(model, 'get_params'):
         wd_params, nowd_params, lr_mul_wd_params, lr_mul_nowd_params = model.get_params()
 

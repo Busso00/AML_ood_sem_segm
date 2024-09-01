@@ -1,1 +1,3 @@
-Best epoch is 60, with Val-IoU= 0.7122
+version https://git-lfs.github.com/spec/v1
+oid sha256:910a48c8ed48be72d26f71f5731a579098719e61ebe950e45be8e097b6edcb7d
+size 38
