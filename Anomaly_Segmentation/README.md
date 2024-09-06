@@ -1,0 +1,1 @@
+# Point 4 extension (losses) base folder

@@ -1,0 +1,66 @@
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+run experiments on: cuda
+dataset:RoadAnomaly21, anomaly score:MSP, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 10/10 [00:02<00:00,  3.47it/s]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 17.044693689727765
+FPR@TPR95: 93.812521196142
+dataset:RoadObsticle21, anomaly score:MSP, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 30/30 [00:18<00:00,  1.60it/s]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 0.7333179837963919
+FPR@TPR95: 99.9372977420383
+dataset:FS_LostFound_full, anomaly score:MSP, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 100/100 [01:05<00:00,  1.53it/s]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 0.3646039991342282
+FPR@TPR95: 96.2517980201137
+dataset:fs_static, anomaly score:MSP, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 30/30 [01:00<00:00,  2.03s/it]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 1.7633455540935983
+FPR@TPR95: 98.72300299422962
+dataset:RoadAnomaly, anomaly score:MSP, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 60/60 [01:46<00:00,  1.78s/it]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 8.082625582295742
+FPR@TPR95: 95.10152285715024
+dataset:RoadAnomaly21, anomaly score:maxLogit, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 10/10 [00:02<00:00,  4.45it/s]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 16.994183318229165
+FPR@TPR95: 96.41086139801504
+dataset:RoadObsticle21, anomaly score:maxLogit, device:cuda:0, resize to 512x1024:False
+Loading model: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/../models/erfnet.py
+Loading weights: /content/drive/MyDrive/Anomaly_Segmentation/save/erfnet_train_cityscape_logit_4/model_best.pth
+Model and weights LOADED successfully
+100%|██████████| 30/30 [00:14<00:00,  2.09it/s]
+/content/drive/MyDrive/Anomaly_Segmentation/eval/evalAnomaly.py:114: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model = load_my_state_dict(model, torch.load(weightspath, map_location=lambda storage, loc: storage))
+AUPRC score: 0.7338839962244503
+FPR@TPR95: 99.93860621987557
